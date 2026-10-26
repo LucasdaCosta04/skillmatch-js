@@ -308,12 +308,12 @@ async function executarSkillMatch() {
     const melhorOpcao = encontrarMelhorVaga(relatorios);
     const recomendacaoEstudo = gerarRecomendacaoDeEstudo(relatorios);
 
-    console.log("\n🏆 DESTAQUE: VAGA COM MAIOR COMPATIBILIDADE (RF06)");
+    console.log("\n🏆 DESTAQUE: VAGA COM MAIOR COMPATIBILIDADE ");
     console.log(
       `-> ${melhorOpcao.vaga.cargo} na empresa ${melhorOpcao.vaga.empresa} (${melhorOpcao.percentual}% - ${melhorOpcao.classificacao})`
     );
 
-    console.log("\n📚 RECOMENDAÇÃO DE ESTUDO PERSONALIZADA (RF07)");
+    console.log("\n📚 RECOMENDAÇÃO DE ESTUDO PERSONALIZADA ");
     console.log(`-> ${recomendacaoEstudo}`);
     console.log("\n==========================================================================");
   } catch (erro) {
