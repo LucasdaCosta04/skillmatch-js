@@ -202,3 +202,124 @@ function gerarRecomendacaoDeEstudo(relatoriosVagas) {
 
   return `Prioridade #1 de estudo: "${principalPrioridade.habilidade}" (aparece em ${principalPrioridade.frequencia} das ${relatoriosVagas.length} vagas). Fila completa priorizada: ${demaisHabilidades}.`;
 }
+
+// ============================================================================
+// PARTE 3: CLOSURE, CALLBACK, PROMISE E ASYNC/AWAIT (RF12, RF13, RF14)
+// ============================================================================
+
+// RF13 - Usar closure para manter um valor interno preservado entre chamadas sem variável global
+function criarGerenciadorDeAnalises() {
+  let totalVagasAnalisadas = 0;
+
+  return function registrarNovaAnalise(nomeEmpresa) {
+    totalVagasAnalisadas += 1;
+    return `Análise #${totalVagasAnalisadas} concluída para ${nomeEmpresa}`;
+  };
+}
+
+// RF12 - Usar callback: função que recebe outra função como parâmetro dentro do fluxo do programa
+function processarAnaliseDeVaga(vaga, perfilCandidato, callbackRegistro) {
+  const habilidadesFaltantes = obterHabilidadesFaltantes(perfilCandidato.habilidades, vaga.requisitos);
+  const percentual = calcularCompatibilidade(perfilCandidato.habilidades, vaga.requisitos);
+  const classificacao = classificarCompatibilidade(percentual);
+  const acaoSugerida = obterAcaoRecomendadaPorClassificacao(classificacao);
+
+  // RF08 - Uso do método 'every' para verificar se o candidato domina 100% dos requisitos da vaga
+  const atendeTodosRequisitos = vaga.requisitos.every((req) =>
+    perfilCandidato.habilidades.map((h) => normalizarTexto(h)).includes(normalizarTexto(req))
+  );
+
+  // Executa o callback recebido por parâmetro
+  const logAuditoria = callbackRegistro(vaga.empresa);
+
+  return {
+    vaga: vaga,
+    percentual: percentual,
+    classificacao: classificacao,
+    acaoSugerida: acaoSugerida,
+    habilidadesFaltantes: habilidadesFaltantes,
+    atendeTodosRequisitos: atendeTodosRequisitos,
+    protocolo: logAuditoria
+  };
+}
+
+// RF14 - Usar Promise para simular o carregamento assíncrono das vagas vindas de um servidor
+function buscarVagasDoServidor(simularFalha = false) {
+  return new Promise((resolve, reject) => {
+    console.log("⏳ Conectando ao servidor do SkillMatch JS... Buscando vagas disponíveis...");
+
+    setTimeout(() => {
+      if (simularFalha) {
+        reject(new Error("Falha de conexão com o servidor de vagas (Erro 503)."));
+      } else {
+        resolve(bancoDeVagas);
+      }
+    }, 1200);
+  });
+}
+
+// RF14 - Função assíncrona com async/await que aguarda o carregamento e exibe o relatório completo
+async function executarSkillMatch() {
+  console.log("==========================================================================");
+  console.log("      SKILLMATCH JS: SIMULADOR DE COMPATIBILIDADE FRONT-END JÚNIOR        ");
+  console.log("==========================================================================\n");
+
+  try {
+    const vagasCarregadas = await buscarVagasDoServidor(false);
+    console.log(`✅ Sucesso! ${vagasCarregadas.length} vagas carregadas do servidor.\n`);
+
+    // Exibição do perfil do candidato (com operador ternário na disponibilidade)
+    console.log("👤 PERFIL DO CANDIDATO");
+    console.log(`Nome: ${candidato.nome}`);
+    console.log(`Área de Interesse: ${candidato.areaInteresse}`);
+    console.log(`Tempo de Experiência: ${candidato.tempoExperienciaMeses} meses (Júnior / Estudante)`);
+    console.log(`Disponibilidade Imediata: ${candidato.disponivelImediato ? "Sim" : "Não"}`);
+    console.log(`Habilidades Atuais (${candidato.habilidades.length}): ${candidato.habilidades.join(", ")}\n`);
+
+    // Instancia a closure contadora de análises
+    const contabilizarAnalise = criarGerenciadorDeAnalises();
+
+    // RF08 - Uso de 'map' com callback para transformar cada vaga em um relatório detalhado
+    const relatorios = vagasCarregadas.map((vaga) =>
+      processarAnaliseDeVaga(vaga, candidato, (empresa) => contabilizarAnalise(empresa))
+    );
+
+    console.log("📊 RELATÓRIO DE COMPATIBILIDADE POR VAGA");
+    console.log("--------------------------------------------------------------------------");
+
+    for (let i = 0; i < relatorios.length; i++) {
+      const item = relatorios[i];
+      console.log(item.vaga.exibirResumo());
+      console.log(`  • Log de Auditoria (Closure + Callback): ${item.protocolo}`);
+      console.log(`  • Requisitos Exigidos: ${item.vaga.requisitos.join(", ")}`);
+      console.log(`  • Compatibilidade: ${item.percentual}% -> ${item.classificacao}`);
+      console.log(`  • Atende 100% dos requisitos (every): ${item.atendeTodosRequisitos ? "Sim" : "Não"}`);
+      console.log(
+        `  • Habilidades em Falta: ${
+          item.habilidadesFaltantes.length === 0
+            ? "Nenhuma! Perfil 100% compatível com a vaga."
+            : item.habilidadesFaltantes.join(", ")
+        }`
+      );
+      console.log(`  • Parecer do Sistema: ${item.acaoSugerida}`);
+      console.log("--------------------------------------------------------------------------");
+    }
+
+    const melhorOpcao = encontrarMelhorVaga(relatorios);
+    const recomendacaoEstudo = gerarRecomendacaoDeEstudo(relatorios);
+
+    console.log("\n🏆 DESTAQUE: VAGA COM MAIOR COMPATIBILIDADE (RF06)");
+    console.log(
+      `-> ${melhorOpcao.vaga.cargo} na empresa ${melhorOpcao.vaga.empresa} (${melhorOpcao.percentual}% - ${melhorOpcao.classificacao})`
+    );
+
+    console.log("\n📚 RECOMENDAÇÃO DE ESTUDO PERSONALIZADA (RF07)");
+    console.log(`-> ${recomendacaoEstudo}`);
+    console.log("\n==========================================================================");
+  } catch (erro) {
+    console.error("❌ Erro ao executar o sistema:", erro.message);
+  }
+}
+
+// Inicializa a aplicação
+executarSkillMatch();
