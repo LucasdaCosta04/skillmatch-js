@@ -56,3 +56,43 @@ class VagaFrontEnd extends Vaga {
     return `${super.exibirResumo()} | Nível: ${this.nivel} | Modalidade: ${this.modalidade} | Foco: ${this.focoTecnico}`;
   }
 }
+
+// RF02 - Criar uma lista com pelo menos 03 vagas fictícias (4 vagas criadas para cobrir diferentes faixas de compatibilidade)
+const bancoDeVagas = [
+  new VagaFrontEnd(
+    1,
+    "TechNova Solutions",
+    "Desenvolvedor(a) Front-End React Júnior",
+    ["JavaScript", "TypeScript", "React", "Node.js", "HTML", "CSS"],
+    "Remoto",
+    "Júnior",
+    "SPA com React & TypeScript"
+  ),
+  new VagaFrontEnd(
+    2,
+    "FinBank Digital",
+    "Desenvolvedor(a) Front-End / Full Stack Júnior",
+    ["JavaScript", "TypeScript", "React", "Java", "Spring Boot", "SQL"],
+    "Híbrido",
+    "Júnior",
+    " Ecossistema React + APIs Spring Boot"
+  ),
+  new VagaFrontEnd(
+    3,
+    "InovaWeb Studio",
+    "Pessoa Desenvolvedora Front-End Júnior",
+    ["JavaScript", "React", "HTML", "CSS", "Figma", "Testes Automatizados"],
+    "Remoto",
+    "Júnior",
+    "Interfaces Responsivas & Design System"
+  ),
+  new VagaFrontEnd(
+    4,
+    "CloudScale Systems",
+    "Engenheiro(a) de Interface Front-End Júnior",
+    ["JavaScript", "TypeScript", "HTML", "CSS", "Tailwind CSS", "Next.js", "Testes Automatizados"],
+    "Presencial",
+    "Júnior",
+    "Performance Web & SSR"
+  )
+];
